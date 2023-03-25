@@ -1,29 +1,26 @@
+# 入力を読み込む
 R, C = map(int, input().split())
-B = [list(input().strip()) for i in range(R)]
+board = [input() for _ in range(R)]
 
-# 爆弾の位置を取得する
-bombs = []
-for i in range(R):
-    for j in range(C):
-        if B[i][j] in "123456789":
-            bombs.append((i, j, int(B[i][j])))
+# 爆発をシミュレートする
+def explode(board, R, C):
+    new_board = [['.' for _ in range(C)] for _ in range(R)]
+    
+    for r in range(R):
+        for c in range(C):
+            if board[r][c] == '#':
+                new_board[r][c] = '#'
+            elif board[r][c].isdigit():
+                power = int(board[r][c])
+                for dr in range(-power, power+1):
+                    for dc in range(-power, power+1):
+                        if abs(dr) + abs(dc) <= power:
+                            nr, nc = r + dr, c + dc
+                            if 0 <= nr < R and 0 <= nc < C:
+                                new_board[nr][nc] = '.'
+    return new_board
 
-# 爆弾の効果範囲を更新する関数
-def update_explosion_range(bomb):
-    x, y, power = bomb
-    for i in range(x - power, x + power + 1):
-        if i < 0 or i >= R:
-            continue
-        for j in range(y - power, y + power + 1):
-            if j < 0 or j >= C:
-                continue
-            if abs(i - x) + abs(j - y) <= power and B[i][j] != "#":
-                B[i][j] = "."
-
-# 爆弾の効果範囲を更新する
-for bomb in bombs:
-    update_explosion_range(bomb)
-
-# 盤面を出力する
-for i in range(R):
-    print("".join(B[i]))
+# 結果を出力する
+new_board = explode(board, R, C)
+for row in new_board:
+    print("".join(row))
